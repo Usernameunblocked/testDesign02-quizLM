@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Your Next Breakthrough Book</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #e0c3fc, #8ec5fc, #a18cd1, #fbc2eb);
+            background-size: 400% 400%;
+            animation: backgroundGradient 15s ease infinite;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 4rem;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            box-sizing: border-box;
+        }
+        
+        .screen {
+            opacity: 0;
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .screen.visible {
+            opacity: 1;
+            display: block;
+        }
+
+        @keyframes backgroundGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .landing-screen h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .landing-screen p {
+            font-size: 1.25rem;
+            color: #4b5563;
+            margin-bottom: 2rem;
+            max-width: 48rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .quiz-screen .question-box {
+            background-color: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            border: 2px solid #e5e7eb;
+            min-height: 100px;
+        }
+        .quiz-screen h2 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .quiz-screen .answer-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .encouraging-message {
+            margin-top: 1rem;
+            color: #10b981;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .encouraging-message.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .results-screen .book-recommendations-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .results-screen .featured-book-container {
+            background-color: #fce7f3;
+            border: 2px solid #ec4899;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .results-screen .featured-book img {
+            height: 16rem;
+            width: 12rem;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+        .results-screen .other-recommendations {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .results-screen .other-recommendations .book-recommendation {
+            display: flex;
+            flex-direction: row;
+            gap: 1.5rem;
+            align-items: center;
+            background-color: #eff6ff;
+            border: 2px solid #bfdbfe;
+            padding: 1rem;
+            border-radius: 1rem;
+        }
+        .results-screen .other-recommendations img {
+            height: 10rem;
+            width: 7.5rem;
+            object-fit: cover;
+            border-radius: 0.75rem;
+        }
+        .results-screen .book-details {
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center p-8">
+
+    <div class="container" id="main-container">
+
+        <!-- Initial Landing Screen -->
+        <div id="landing-screen" class="screen landing-screen visible">
+            <h1>Find Your Next Breakthrough Book</h1>
+            <p>
+                Answer a few questions to get a personalized self-help book recommendation for your business and personal growth journey.
+            </p>
+            <button id="start-quiz-btn" class="bg-blue-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 hover:bg-blue-600 hover:scale-105">
+                Start Quiz
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen quiz-screen">
+            <!-- Progress Bar -->
+            <div class="progress-bar-container mb-8">
+                <p class="progress-bar-text text-gray-600 mb-2">Question <span id="current-question-num">1</span> of <span id="total-questions-num"></span></p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-300"></div>
+                </div>
+            </div>
+            
+            <!-- Question -->
+            <div class="question-box">
+                <h2 id="quiz-question" class="text-2xl font-semibold text-gray-800"></h2>
+                <p id="encouraging-message" class="encouraging-message"></p>
+            </div>
+            
+            <!-- Answer Options -->
+            <div id="answer-options" class="answer-options">
+                <!-- Answer buttons will be inserted here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Lead Capture Screen -->
+        <div id="lead-capture-screen" class="screen lead-capture-screen">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">You're almost there!</h2>
+            <p class="text-xl text-gray-600 mb-8">
+                Enter your name and email to get your personalized book recommendation sent straight to you.
+            </p>
+            <form id="lead-form" class="flex flex-col gap-4 max-w-sm mx-auto">
+                <input type="text" id="name" name="name" placeholder="Your Name" required class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-shadow">
+                <input type="email" id="email" name="email" placeholder="Your Email Address" required class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-shadow">
+                <button type="submit" class="w-full bg-blue-500 text-white font-bold p-3 rounded-full shadow-lg transition-all duration-300 hover:bg-blue-600 hover:scale-105">
+                    Get My Recommendation
+                </button>
+            </form>
+        </div>
+        
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen results-screen">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Your Personalized Book Recommendations</h2>
+            <p class="text-xl text-gray-600 mb-8">Here are three books to help you achieve your goals.</p>
+            <div id="book-recommendations-container" class="book-recommendations-container">
+                <!-- Recommendations will be inserted here by JavaScript -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- QUIZ DATA ---
+        const quizQuestions = [
+            {
+                question: "When you have a big goal, do you prefer to start with a detailed plan or just dive in?",
+                options: [
+                    { text: "I need a detailed plan and a clear roadmap.", category: "strategy" },
+                    { text: "I just dive in and figure it out as I go.", category: "mindset" },
+                    { text: "I focus on small, consistent steps every day.", category: "productivity" },
+                    { text: "I look for experts to learn the best way to start.", category: "skills" }
+                ]
+            },
+            {
+                question: "What's the one area you'd like to improve the most in your life right now?",
+                options: [
+                    { text: "My mental resilience and confidence.", category: "mindset" },
+                    { text: "My ability to influence and connect with others.", category: "skills" },
+                    { text: "My time management and daily habits.", category: "productivity" },
+                    { text: "My long-term vision and goal-setting.", category: "strategy" }
+                ]
+            },
+            {
+                question: "Imagine you're trying to learn a new skill. What's the biggest challenge you'd likely face?",
+                options: [
+                    { text: "Staying disciplined and practicing consistently.", category: "productivity" },
+                    { text: "Overcoming self-doubt when I hit a roadblock.", category: "mindset" },
+                    { text: "Not knowing the best way to learn it.", category: "strategy" },
+                    { text: "Finding the right people to learn from.", category: "skills" }
+                ]
+            },
+            {
+                question: "When you feel stuck, what's your go-to strategy?",
+                options: [
+                    { text: "I reassess my long-term plan and adjust my strategy.", category: "strategy" },
+                    { text: "I work on my mindset and re-read inspiring content.", category: "mindset" },
+                    { text: "I break down the problem into smaller, manageable tasks.", category: "productivity" },
+                    { text: "I reach out to my network for advice and new perspectives.", category: "skills" }
+                ]
+            },
+            {
+                question: "Which of these is the most important for achieving a new goal?",
+                options: [
+                    { text: "A step-by-step plan that shows me exactly what to do.", category: "strategy" },
+                    { text: "The right daily habits and routines to stay on track.", category: "productivity" },
+                    { text: "The belief that I can achieve it no matter what.", category: "mindset" },
+                    { text: "The ability to get others to support my vision.", category: "skills" }
+                ]
+            },
+            {
+                question: "What's your biggest struggle when trying to make a major life change?",
+                options: [
+                    { text: "The fear of failure and stepping outside my comfort zone.", category: "mindset" },
+                    { text: "Having a clear, repeatable system to get the work done.", category: "productivity" },
+                    { text: "Knowing who to trust and what advice to follow.", category: "skills" },
+                    { text: "Creating a solid plan and sticking to it.", category: "strategy" }
+                ]
+            },
+            {
+                question: "What part of your daily routine do you feel is most important for your success?",
+                options: [
+                    { text: "The first hour of my day, when I set my intentions.", category: "mindset" },
+                    { text: "The time I spend learning a new skill.", category: "skills" },
+                    { text: "The systems I use to manage my tasks and projects.", category: "productivity" },
+                    { text: "The time I dedicate to thinking about my long-term vision.", category: "strategy" }
+                ]
+            },
+            {
+                question: "Which of these quotes resonates most with you?",
+                options: [
+                    { text: "'Success is the sum of small efforts, repeated day-in and day-out.'", category: "productivity" },
+                    { text: "'The starting point of all achievement is desire.'", category: "mindset" },
+                    { text: "'Strategy without tactics is the slowest route to victory.'", category: "strategy" },
+                    { text: "'Your network is your net worth.'", category: "skills" }
+                ]
+            }
+        ];
+
+        // --- BOOK RECOMMENDATIONS ---
+        const bookRecommendations = {
+            productivity: {
+                title: "Atomic Habits",
+                author: "James Clear",
+                description: "A practical guide to building good habits and breaking bad ones, perfect for optimizing your daily routine for maximum productivity.",
+                reason: "You're all about **daily habits and consistent action**. This book will give you the framework to build a bulletproof system for success.",
+                image: "https://placehold.co/150x200/c7d2fe/3730a3?text=Atomic+Habits",
+                link: "#"
+            },
+            strategy: {
+                title: "The Lean Startup",
+                author: "Eric Ries",
+                description: "This book provides a scientific approach to creating and managing successful startups, teaching you how to adapt and innovate with less risk.",
+                reason: "You are a **strategic thinker** who loves a good plan. This book will show you how to test your ideas and build a solid foundation.",
+                image: "https://placehold.co/150x200/c7d2fe/3730a3?text=The+Lean+Startup",
+                link: "#"
+            },
+            skills: {
+                title: "Pre-Suasion: A Revolutionary Way to Influence and Persuade",
+                author: "Robert Cialdini",
+                description: "A deep dive into the art of influence, teaching you how to set the stage for your message before you even deliver it.",
+                reason: "You understand the power of **people and connections**. This book will sharpen your communication and influence skills to help you build a powerful network.",
+                image: "https.co/150x200/c7d2fe/3730a3?text=Pre-Suasion",
+                link: "#"
+            },
+            mindset: {
+                title: "Rich Dad Poor Dad",
+                author: "Robert Kiyosaki",
+                description: "A classic for a reason, this book challenges traditional thinking about money and teaches the principles of building wealth and financial freedom.",
+                reason: "Your greatest strength is your **mindset and conviction**. This book will challenge your existing beliefs about money and inspire you to think like an entrepreneur.",
+                image: "https://placehold.co/150x200/c7d2fe/3730a3?text=Rich+Dad+Poor+Dad",
+                link: "#"
+            },
+            featured: {
+                title: "100M Money Models",
+                author: "Alex Hormozi",
+                description: "This is a must-read for entrepreneurs focused on scaling their business. It provides a unique framework for generating and maximizing revenue.",
+                reason: "No matter where you are in your journey, this is the definitive guide to **generating, scaling, and managing revenue.** A must-read for anyone serious about growing their wealth.",
+                image: "https://placehold.co/150x200/c7d2fe/3730a3?text=100M+Money+Models",
+                link: "YOUR_AFFILIATE_LINK_HERE"
+            }
+        };
+
+        // --- DOM REFERENCES ---
+        const landingScreen = document.getElementById('landing-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const leadCaptureScreen = document.getElementById('lead-capture-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        
+        const startQuizBtn = document.getElementById('start-quiz-btn');
+        const currentQuestionNum = document.getElementById('current-question-num');
+        const totalQuestionsNum = document.getElementById('total-questions-num');
+        const progressBar = document.getElementById('progress-bar');
+        const quizQuestion = document.getElementById('quiz-question');
+        const answerOptionsContainer = document.getElementById('answer-options');
+        const encouragingMessage = document.getElementById('encouraging-message');
+        const leadForm = document.getElementById('lead-form');
+        const bookRecommendationsContainer = document.getElementById('book-recommendations-container');
+
+        // --- QUIZ STATE ---
+        let currentQuestionIndex = 0;
+        const userAnswers = [];
+        const positiveFeedback = ["Great choice!", "Perfect!", "Got it!", "Yes!", "Awesome!"];
+
+        // --- FUNCTIONS ---
+        
+        function showScreen(screenToShow) {
+            const allScreens = document.querySelectorAll('.screen');
+            allScreens.forEach(screen => {
+                screen.classList.remove('visible');
+            });
+            screenToShow.classList.add('visible');
+        }
+
+        function displayQuestion() {
+            const currentQuestion = quizQuestions[currentQuestionIndex];
+            
+            const progress = (currentQuestionIndex / quizQuestions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            currentQuestionNum.textContent = currentQuestionIndex + 1;
+            totalQuestionsNum.textContent = quizQuestions.length;
+            
+            quizQuestion.textContent = currentQuestion.question;
+            answerOptionsContainer.innerHTML = '';
+
+            currentQuestion.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option.text;
+                button.className = "bg-gray-50 text-gray-800 font-medium p-4 rounded-xl border-2 border-gray-200 text-left transition-all duration-200 hover:bg-blue-100 hover:scale-105 cursor-pointer";
+                button.addEventListener('click', () => handleAnswer(option.category));
+                answerOptionsContainer.appendChild(button);
+            });
+        }
+        
+        function handleAnswer(category) {
+            userAnswers.push(category);
+            currentQuestionIndex++;
+
+            const randomFeedback = positiveFeedback[Math.floor(Math.random() * positiveFeedback.length)];
+            encouragingMessage.textContent = randomFeedback;
+            encouragingMessage.classList.add('visible');
+
+            if (currentQuestionIndex < quizQuestions.length) {
+                setTimeout(() => {
+                    encouragingMessage.classList.remove('visible');
+                    displayQuestion();
+                }, 1000);
+            } else {
+                const finalProgress = (quizQuestions.length / quizQuestions.length) * 100;
+                progressBar.style.width = `${finalProgress}%`;
+                
+                setTimeout(() => {
+                    showScreen(leadCaptureScreen);
+                }, 1000);
+            }
+        }
+        
+        function submitForm(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            console.log(`Lead Captured! Name: ${name}, Email: ${email}`);
+
+            setTimeout(showResults, 1500);
+        }
+
+        function showResults() {
+            const categoryCounts = {};
+            userAnswers.forEach(category => {
+                categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+            });
+            
+            let maxCount = 0;
+            let primaryCategory = '';
+            for (const category in categoryCounts) {
+                if (categoryCounts[category] > maxCount) {
+                    maxCount = categoryCounts[category];
+                    primaryCategory = category;
+                }
+            }
+
+            const primaryBook = bookRecommendations[primaryCategory];
+            const otherCategories = Object.keys(bookRecommendations).filter(c => c !== primaryCategory && c !== 'featured');
+            
+            const secondaryBook = bookRecommendations[otherCategories[0]];
+            const featuredBook = bookRecommendations['featured'];
+
+            bookRecommendationsContainer.innerHTML = '';
+            
+            // Render the featured book prominently
+            const featuredBookContainer = document.createElement('div');
+            featuredBookContainer.className = "featured-book-container";
+            featuredBookContainer.innerHTML = `
+                <div class="book-recommendation featured-book">
+                    <img src="${featuredBook.image}" alt="${featuredBook.title}" class="shadow-xl">
+                    <div class="book-details text-center">
+                        <h3 class="text-3xl font-bold text-pink-700 mb-2">${featuredBook.title}</h3>
+                        <p class="author text-gray-500 font-semibold mb-2">by ${featuredBook.author}</p>
+                        <p class="description text-gray-600 mb-4">${featuredBook.description}</p>
+                        <p class="text-lg text-pink-800 font-bold mb-4">${featuredBook.reason}</p>
+                        <a href="${featuredBook.link}" target="_blank" class="cta-button bg-pink-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 hover:bg-pink-700 hover:scale-105">
+                            Get This Book
+                        </a>
+                    </div>
+                </div>
+            `;
+            bookRecommendationsContainer.appendChild(featuredBookContainer);
+
+            // Render the other two recommendations
+            const otherRecs = document.createElement('div');
+            otherRecs.className = "other-recommendations";
+
+            [primaryBook, secondaryBook].forEach(book => {
+                if (book.title !== featuredBook.title) {
+                    const bookCard = document.createElement('div');
+                    bookCard.className = `book-recommendation`;
+                    bookCard.innerHTML = `
+                        <img src="${book.image}" alt="${book.title}" class="shadow-md">
+                        <div class="book-details">
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">${book.title}</h3>
+                            <p class="author text-blue-500 font-semibold text-sm mb-2">by ${book.author}</p>
+                            <p class="description text-gray-600 text-sm mb-2">${book.description}</p>
+                            <p class="text-base text-blue-800 font-bold mb-2">${book.reason}</p>
+                            <a href="${book.link}" target="_blank" class="cta-button bg-blue-500 text-white font-bold py-2 px-4 rounded-full mt-2 inline-block transition-all duration-300 hover:bg-blue-600 hover:scale-105">
+                                Get This Book
+                            </a>
+                        </div>
+                    `;
+                    otherRecs.appendChild(bookCard);
+                }
+            });
+            bookRecommendationsContainer.appendChild(otherRecs);
+            
+            showScreen(resultsScreen);
+        }
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            totalQuestionsNum.textContent = quizQuestions.length;
+            if (startQuizBtn) {
+                startQuizBtn.addEventListener('click', () => {
+                    document.body.style.animation = 'none';
+                    showScreen(quizScreen);
+                    displayQuestion();
+                });
+            }
+
+            if (leadForm) {
+                leadForm.addEventListener('submit', submitForm);
+            }
+        });
+    </script>
+</body>
+</html>
